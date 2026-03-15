@@ -1,3 +1,325 @@
-<html>
-    <p>Demo</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dancing Robot — Music Synchronization | CS188</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fef2db;
+      --surface: white;
+      --surface2: #f7e5c3;
+      --text: #1c1d21;
+      --text-muted: #4a4b52;
+      --accent: #c45c0a;
+      --accent-dim: rgba(196, 92, 10, 0.18);
+      --accent2: #2a6b8a;
+      --accent2-dim: rgba(42, 107, 138, 0.2);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 3rem 0 4rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(196, 92, 10, 0.4);
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: pulse 1.2s ease-in-out infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h2 .num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(196, 92, 10, 0.35);
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cards {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--surface2);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 0 0 2px var(--accent-dim);
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+      color: var(--accent);
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85em;
+      background: var(--surface2);
+      padding: 0.1em 0.4em;
+      border-radius: 2px;
+      color: var(--accent);
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .arch {
+      background: var(--surface);
+      border: 2px solid var(--surface2);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .arch-flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .arch-node {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .arch-node.emitter {
+      background: var(--accent2-dim);
+      color: var(--accent2);
+      border-color: rgba(42, 107, 138, 0.35);
+    }
+
+    .arch-node.controller {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: rgba(196, 92, 10, 0.4);
+    }
+
+    .arch-arrow { color: var(--text-muted); }
+
+    .arch-detail {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+      padding-left: 0.5rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .arch-detail + .arch-detail {
+      margin-top: 0.5rem;
+    }
+
+    .video-wrapper {
+      position: relative;
+      background: #1a1a1a;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 3px solid var(--surface2);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 0 var(--surface2);
+    }
+
+    .video-wrapper video { width: 100%; display: block; }
+
+    .video-caption { font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+    .video-placeholder {
+      aspect-ratio: 16/9;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .video-placeholder[data-fallback] {
+      display: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    .video-wrapper.show-fallback .video-placeholder[data-fallback] { display: flex; }
+    .video-wrapper.show-fallback video { display: none; }
+
+    footer { text-align: center; padding: 2rem 0; font-size: 0.85rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CS 188 Final Project: Robot Beat Synchronization</h1>
+    </header>
+
+    <section aria-labelledby="purpose-heading">
+      <h2 id="purpose-heading"><span class="num">1</span> Purpose</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Extract tempo automatically</h3>
+          <p><strong>Energy-based:</strong> Detects beats from increases in audio energy (frame-by-frame). Tempo is estimated from the interval between the last two detected beats.</p>
+          <p style="margin-top: 0.5rem;"><strong>Librosa-based:</strong> Uses the <code>librosa</code> library on a sliding buffer of audio to estimate BPM and beat times, then predicts future beats for synchronization.</p>
+        </div>
+        <div class="card">
+          <h3>Generate time-aligned motion patterns</h3>
+          <p>On each detected beat, the Nao robot performs a short “bop” (body dip + alternating arm raises) with interpolated joint motion. Motion is aligned to beat times so the robot appears to dance in time with the music.</p>
+        </div>
+        <div class="card">
+          <h3>Demonstrate synchronization accuracy</h3>
+          <p>Two Nao robots in the same world listen to the same streamed audio: one uses <code>nao_energy_controller</code>, the other <code>nao_librosa_controller</code>. Behavior can be compared through offline tests to verify tempo extraction and beat alignment.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="arch-heading">
+      <h2 id="arch-heading"><span class="num">2</span> Architecture</h2>
+      <div class="arch">
+        <div class="arch-flow">
+          <span class="arch-node emitter">E-puck (emitter)</span>
+          <span class="arch-arrow">→</span>
+          <span class="arch-node controller">Nao (energy)</span>
+          <span class="arch-arrow">+</span>
+          <span class="arch-node controller">Nao (librosa)</span>
+        </div>
+        <p class="arch-detail"><strong>E-puck</strong> runs the emitter controller: reads a WAV file and streams it in chunks over the radio (sample rate first, then PCM16 audio chunks).</p>
+        <p class="arch-detail"><strong>Two Nao robots</strong> on channel 1: <code>nao_energy_controller</code> (per-chunk energy, bop on threshold, BPM from beat intervals) and <code>nao_librosa_controller</code> (buffered audio, librosa beat tracking, bops on predicted beat times).</p>
+      </div>
+    </section>
+
+    <section class="video-section" aria-labelledby="demo-heading">
+      <h2 id="demo-heading"><span class="num">3</span> Demo in action</h2>
+      <div class="card">
+        <p>
+          <strong>Left:</strong> energy-based beat detection </br>
+          <strong>Right:</strong> <code>librosa</code> beat tracking (starts after a short buffer so it can analyze the audio). </br>
+          Both listen to the same streamed music.
+        </p>
+      </div>
+
+      <div class="video-wrapper show-fallback" data-video="demo">
+        <video controls preload="metadata" aria-label="Main project demo">
+            <source src="/demo-videos/robotics-demo-im-blue.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      <div class="video-wrapper show-fallback" data-video="comparison">
+        <video controls preload="metadata" aria-label="Comparison or second demo">
+          <source src="/demo-videos/robotics-demo-friends.mp4" type="video/webm" />
+        </video>
+      </div>
+    </section>
+
+    <footer>
+      CS188 Final Project Demo
+    </footer>
+  </div>
+  <script>
+    document.querySelectorAll('.video-wrapper[data-video]').forEach(function (wrapper) {
+      var video = wrapper.querySelector('video');
+      if (!video) return;
+      video.addEventListener('error', function () { wrapper.classList.add('show-fallback'); });
+      video.addEventListener('loadeddata', function () { wrapper.classList.remove('show-fallback'); });
+    });
+  </script>
+</body>
 </html>
